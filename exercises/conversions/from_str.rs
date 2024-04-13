@@ -31,7 +31,7 @@ enum ParsePersonError {
     ParseInt(ParseIntError),
 }
 
-// I AM NOT DONE
+
 
 // Steps:
 // 1. If the length of the provided string is 0, an error should be returned
@@ -49,9 +49,31 @@ enum ParsePersonError {
 // you want to return a string error message, you can do so via just using
 // return `Err("my error message".into())`.
 
+use std::cmp::Ordering;
+
 impl FromStr for Person {
     type Err = ParsePersonError;
     fn from_str(s: &str) -> Result<Person, Self::Err> {
+        if s.len().eq(&0){
+            return Err(ParsePersonError::Empty);
+        }
+        let arr:Vec<&str>=s.split(',').collect();
+        if arr.len().ne(&2){
+            return Err(ParsePersonError::BadLen);
+        }
+
+        if arr.get(0).unwrap().len()==0{
+            return Err(ParsePersonError::NoName);
+        }
+
+        let age=arr.get(1).unwrap().parse::<usize>();
+        if let Err(err)=age{
+            return Err(ParsePersonError::ParseInt(err));
+        }
+        return Ok(Person{
+            name:arr.get(0).unwrap().to_string(),
+            age:age.unwrap()
+        });
     }
 }
 
