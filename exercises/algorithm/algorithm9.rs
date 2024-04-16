@@ -2,10 +2,11 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
+
 
 use std::cmp::Ord;
 use std::default::Default;
+use std::fmt::Display;
 
 pub struct Heap<T>
 where
@@ -18,7 +19,7 @@ where
 
 impl<T> Heap<T>
 where
-    T: Default,
+    T: Default+ PartialOrd,
 {
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
@@ -36,9 +37,42 @@ where
         self.len() == 0
     }
 
-    pub fn add(&mut self, value: T) {
-        //TODO
+    fn heapify_up(&mut self, mut idx: usize) {
+        while idx > 1 {
+            let parent_idx = self.parent_idx(idx);
+            if (self.comparator)(&self.items[idx], &self.items[parent_idx]) {
+                self.items.swap(idx, parent_idx);
+                idx = parent_idx;
+            } else {
+                break;
+            }
+        }
     }
+
+    fn heapify_down(&mut self, mut idx: usize) {
+        loop {
+            let smallest_child_idx = self.smallest_child_idx(idx);
+            if smallest_child_idx > self.count {
+                break;
+            }
+            if (self.comparator)(&self.items[smallest_child_idx], &self.items[idx]) {
+                self.items.swap(smallest_child_idx, idx);
+                idx = smallest_child_idx;
+            } else {
+                break;
+            }
+        }
+    }
+    pub fn add(&mut self, value: T) where T: Copy+std::fmt::Display{
+        //TODO
+        self.items.push(value);
+        self.count += 1;
+
+        // 对新元素进行上浮操作，维护堆的性质
+        self.heapify_up(self.count);
+        
+    }
+    
 
     fn parent_idx(&self, idx: usize) -> usize {
         idx / 2
@@ -57,8 +91,19 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        let left_child_idx = self.left_child_idx(idx);
+        let right_child_idx = self.right_child_idx(idx);
+
+        if !self.children_present(right_child_idx) {
+            return left_child_idx;
+        }
+
+        // 返回左右子节点中值较小的那个的索引
+        if self.items[left_child_idx] < self.items[right_child_idx] {
+            left_child_idx
+        } else {
+            right_child_idx
+        }
     }
 }
 
@@ -79,13 +124,25 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default+Copy+PartialOrd,
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+        if self.count == 0 {
+            return None;
+        } else {
+            let ret = self.items[1]; // 堆的根元素
+            self.items.swap(1, self.count); // 将最后一个元素移动到根位置
+            self.items.pop(); // 移除最后一个元素（原根）
+            self.count -= 1; // 减少计数
+    
+            // 通过向下堆化恢复堆属性
+            self.heapify_down(1);
+    
+            Some(ret)
+        }
     }
 }
 
