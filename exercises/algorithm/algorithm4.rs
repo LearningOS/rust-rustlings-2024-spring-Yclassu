@@ -3,9 +3,10 @@
 	This problem requires you to implement a basic interface for a binary tree
 */
 
-//I AM NOT DONE
+use std::borrow::BorrowMut;
+
 use std::cmp::Ordering;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 
 #[derive(Debug)]
@@ -41,7 +42,7 @@ where
 
 impl<T> BinarySearchTree<T>
 where
-    T: Ord,
+    T: Ord+Display,
 {
 
     fn new() -> Self {
@@ -49,14 +50,31 @@ where
     }
 
     // Insert a value into the BST
-    fn insert(&mut self, value: T) {
+    fn insert(&mut self, value: T){
         //TODO
+        match &mut self.root {
+            Option::None=>self.root=Some(Box::new(TreeNode::new(value))),
+            Option::Some(data)=>{
+                data.insert(value);
+            }
+        }
+        
+        
     }
 
     // Search for a value in the BST
     fn search(&self, value: T) -> bool {
         //TODO
-        true
+        let mut node=&self.root;
+        while let Some(data)=node{
+            match  data.value.cmp(&value){
+                Ordering::Greater=>node=&node.as_ref().unwrap().right,
+                Ordering::Less=>node=&node.as_ref().unwrap().left,
+                Ordering::Equal=>return true,
+            }
+            print!("{}",data.value);
+        }
+        return false;
     }
 }
 
@@ -67,6 +85,18 @@ where
     // Insert a node into the tree
     fn insert(&mut self, value: T) {
         //TODO
+        match self.value.cmp(&value){
+            Ordering::Less=> match &mut self.left {
+                    Option::None=>self.left=Some(Box::new(TreeNode::new(value))),
+                    Option::Some(data)=>data.insert(value)
+            }
+            Ordering::Greater=>match &mut self.right {
+                Option::None=>self.right=Some(Box::new(TreeNode::new(value))),
+                Option::Some(data)=>data.insert(value)   
+            }
+            Other=>{}
+        }
+        // print!("2");
     }
 }
 
