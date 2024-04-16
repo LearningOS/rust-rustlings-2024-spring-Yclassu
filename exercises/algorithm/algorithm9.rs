@@ -63,7 +63,7 @@ where
             }
         }
     }
-    pub fn add(&mut self, value: T) where T: Copy+std::fmt::Display{
+    pub fn add(&mut self, value: T) where T: Copy{
         //TODO
         self.items.push(value);
         self.count += 1;
